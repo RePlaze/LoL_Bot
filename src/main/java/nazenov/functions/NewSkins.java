@@ -1,5 +1,6 @@
 package nazenov.functions;
 
+import nazenov.utils.ImageData;
 import nazenov.utils.TelegramBotUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,7 +11,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import nazenov.utils.ImageData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,22 +27,26 @@ public class NewSkins {
     }
 
     public void sendNewSkins(String chatId) {
-        CompletableFuture.runAsync(() -> {
-            List<ImageData> imageDataList = getImageDataFromWebpageWithMinSize(480, 270);
+        SendMessage headerMessage =
+                new SendMessage( chatId, "*New LoL Skins: All Skins Released in 2023*" );
+        headerMessage.enableMarkdown( true );
+        try {
+            bot.execute( headerMessage );
+        } catch (TelegramApiException e) {
+            throw new RuntimeException( e );
+        }
+        CompletableFuture.runAsync( () -> {
+            List<ImageData> imageDataList = getImageDataFromWebpageWithMinSize( 480, 270 );
             if (!imageDataList.isEmpty())
                 for (ImageData imageData : imageDataList)
-                    sendImage(chatId, imageData);
-             else
-                sendErrorMessage(chatId);
-        });
+                    sendImage( chatId, imageData );
+            else
+                sendErrorMessage( chatId );
+        } );
     }
 
     private void sendImage(String chatId, ImageData imageData) {
         try {
-            SendMessage headerMessage =
-                    new SendMessage(chatId, "*New LoL Skins: All Skins Released in 2023*");
-            headerMessage.enableMarkdown( true );
-            bot.execute(headerMessage);
             InputStream inputStream = new URL(imageData.getImageUrl()).openStream();
             InputFile image = new InputFile(inputStream, "image.jpg");
             SendPhoto sendPhoto = new SendPhoto(chatId, image);
