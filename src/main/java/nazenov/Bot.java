@@ -1,5 +1,6 @@
 package nazenov;
 
+import nazenov.functions.Champions.ChampionInfo;
 import nazenov.functions.NewSkins;
 import nazenov.functions.PatchDate;
 import nazenov.utils.OptionBar;
@@ -17,7 +18,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "YOUR_TOKEN";
+        return "";
     }
 
     @Override
@@ -26,15 +27,19 @@ public class Bot extends TelegramLongPollingBot {
             Message message = update.getMessage();
             String text = message.getText();
 
-            if (text.equalsIgnoreCase("/start")) {
+            if (text.equalsIgnoreCase( "/start" ) || text.equalsIgnoreCase( "Back" )) {
                 ReplyKeyboardMarkup options = OptionBar.buildKeyboard();
-                // Use the utility class to send the formatted message
-                TelegramBotUtil.sendFormattedText(this, message.getChatId().toString(), "*Choose an option:*", true, options);
-            } else if (text.equalsIgnoreCase("New Skins")) {
-                new NewSkins(this).sendNewSkins(message.getChatId().toString());
-            } else if (text.equalsIgnoreCase("Patch Dates")) {
-                new PatchDate(this).patches(message.getChatId().toString());
+                TelegramBotUtil.sendFormattedText( this, message.getChatId().toString(), "*Choose option*", true, options );
+            } else if (text.equalsIgnoreCase( "New Skins" )) {
+                new NewSkins( this ).sendNewSkins( message.getChatId().toString() );
+            } else if (text.equalsIgnoreCase( "Patch Dates" )) {
+                new PatchDate( this ).patches( message.getChatId().toString() );
+            } else if (text.equalsIgnoreCase( "Champion Info" )) {
+                new ChampionInfo( this ).selectChampion( message.getChatId().toString() );
+            } else {
+                new ChampionInfo( this ).handleUserInput( message.getChatId().toString(), text );
             }
         }
     }
+
 }

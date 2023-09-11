@@ -10,21 +10,25 @@ public class OptionBar {
 
     public static ReplyKeyboardMarkup buildKeyboard() {
         ReplyKeyboardMarkup options = new ReplyKeyboardMarkup();
-        options.setSelective(true);
-        options.setResizeKeyboard(true);
-        options.setOneTimeKeyboard(false);
+        options.setSelective( true );
+        options.setResizeKeyboard( true );
+        options.setOneTimeKeyboard( false );
 
         List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow keyboardRow = new KeyboardRow();
 
-        keyboardRow.add("New Skins");
-        keyboardRow.add("Patch Dates");
+        // Create a new KeyboardRow for "Champion Info" button
+        KeyboardRow championInfoRow = new KeyboardRow();
+        championInfoRow.add( "Champion Info" );
+        keyboard.add( championInfoRow );
 
-        keyboard.add(keyboardRow);
+        // Create a new KeyboardRow for "New Skins" and "Patch Dates" buttons in the same row
+        KeyboardRow secondaryRow = new KeyboardRow();
+        secondaryRow.add( "New Skins" );
+        secondaryRow.add( "Patch Dates" );
+        keyboard.add( secondaryRow );
 
-        options.setKeyboard(keyboard);
+        options.setKeyboard( keyboard );
 
         return options;
     }
 }
-
