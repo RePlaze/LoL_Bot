@@ -20,9 +20,9 @@ public class ChampionKeyboad {
         KeyboardRow keyboardRow2 = new KeyboardRow();
 
         // Add buttons to the keyboard rows
-        keyboardRow1.add( "Counters" );
-        keyboardRow1.add( "Build" );
-        keyboardRow2.add( "Back" );
+        keyboardRow1.add( "\uD83D\uDEAB Counters" );
+        keyboardRow1.add( "\uD83D\uDEAB Build" );
+        keyboardRow2.add( "Champion Info" );
 
         keyboard.add( keyboardRow1 );
         keyboard.add( keyboardRow2 );

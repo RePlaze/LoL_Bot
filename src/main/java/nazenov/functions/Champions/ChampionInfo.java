@@ -9,15 +9,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import static nazenov.functions.Champions.ChampionKeyboad.championButtons;
 
 public class ChampionInfo {
-    private static TelegramLongPollingBot bot = null;
-    private static final String lastMessage = "";
+    private static TelegramLongPollingBot botInstance;
 
     public ChampionInfo(TelegramLongPollingBot bot) {
-        ChampionInfo.bot = bot;
+        botInstance = bot;
     }
 
     public void champOptions(String chatId, String championName) {
-
         String imageUrl = getChampionImage( championName );
         String formattedChampionName = "*" + championName + "*";
 
@@ -29,15 +27,18 @@ public class ChampionInfo {
 
         try {
             // Send the photo with the custom keyboard
-            bot.execute( sendPhoto );
+            botInstance.execute( sendPhoto );
         } catch (TelegramApiException e) {
             e.printStackTrace();
+            TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred while sending the photo.", false, null );
         }
+        Build build = new Build( botInstance );
+        build.build( chatId, championName );
     }
 
     public static void selectChampion(String chatId) {
         // Send a message asking for the champion's name
-        TelegramBotUtil.sendFormattedText( bot, chatId, "*Name of Champion?*", true, null );
+        TelegramBotUtil.sendFormattedText( botInstance, chatId, "*Name of Champion?*", true, null );
     }
 
     private String getChampionImage(String championName) {
@@ -48,5 +49,4 @@ public class ChampionInfo {
         String championName = messageText.substring( 0, 1 ).toUpperCase() + messageText.substring( 1 );
         champOptions( chatId, championName );
     }
-
 }
