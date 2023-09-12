@@ -113,6 +113,7 @@ public class Build {
             sendMessage.enableMarkdown( true );
 
             try {
+                System.out.println( "Hello World!" );
                 botInstance.execute( sendMessage );
             } catch (TelegramApiException e) {
                 e.printStackTrace();

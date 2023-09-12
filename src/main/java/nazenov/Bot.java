@@ -2,6 +2,7 @@ package nazenov;
 
 import nazenov.functions.Champions.Build;
 import nazenov.functions.Champions.ChampionInfo;
+import nazenov.functions.Champions.Counters;
 import nazenov.functions.NewSkins;
 import nazenov.functions.PatchDate;
 import nazenov.utils.OptionBar;
@@ -24,7 +25,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "6699616361:AAG03q66m9ibreMrjWtjTaYT52ioOuytFwI";
+        return "";
     }
 
     @Override
@@ -61,7 +62,11 @@ public class Bot extends TelegramLongPollingBot {
                 Build build = new Build( this );
                 build.build( chatId, championName );
             } else if (data.startsWith( "view_counters:" )) {
-
+                String[] parts = data.split( ":" );
+                String chatId = parts[1];
+                String championName = parts[2];
+                Counters counter = new Counters( this );
+                counter.counters( chatId, championName );
             }
 
             // Send a callback query response (acknowledge the button press)

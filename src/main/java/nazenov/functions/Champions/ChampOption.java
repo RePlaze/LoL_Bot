@@ -21,7 +21,7 @@ public class ChampOption {
         // Add "View Counters" button
         InlineKeyboardButton countersButton = new InlineKeyboardButton();
         countersButton.setText( "Counters" );
-        countersButton.setCallbackData( "view_counters:" + championName ); // Replace with appropriate callback data
+        countersButton.setCallbackData( "view_counters:" + chatId + ":" + championName ); // Replace with appropriate callback data
         List<InlineKeyboardButton> countersRow = new ArrayList<>();
         countersRow.add( countersButton );
 

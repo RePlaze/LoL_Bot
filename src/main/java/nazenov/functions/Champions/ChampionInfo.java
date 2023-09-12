@@ -40,11 +40,6 @@ public class ChampionInfo {
             String chatIdFromCallback = parts[1];
             String championName = parts[2];
 
-            System.out.println( chatId );
-            System.out.println( chatIdFromCallback );
-            System.out.println( action );
-            System.out.println( championName );
-
             if (action.equals( "view_builds" )) {
                 // Handle "View Builds" action here
                 Build build = new Build( botInstance );
