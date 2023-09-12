@@ -16,15 +16,13 @@ public class ChampionKeyboad {
         keyboardMarkup.setOneTimeKeyboard( false );
 
         List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow keyboardRow1 = new KeyboardRow();
+//        KeyboardRow keyboardRow1 = new KeyboardRow();
         KeyboardRow keyboardRow2 = new KeyboardRow();
 
         // Add buttons to the keyboard rows
-        keyboardRow1.add( "\uD83D\uDEAB Counters" );
-        keyboardRow1.add( "\uD83D\uDEAB Build" );
-        keyboardRow2.add( "Champion Info" );
+        keyboardRow2.add( "Back" );
 
-        keyboard.add( keyboardRow1 );
+//        keyboard.add( keyboardRow1 );
         keyboard.add( keyboardRow2 );
         keyboardMarkup.setKeyboard( keyboard );
         return keyboardMarkup;

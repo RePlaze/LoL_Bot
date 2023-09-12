@@ -18,12 +18,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class NewSkins {
     private static TelegramLongPollingBot bot = null;
+    private final ThreadPoolExecutor executor;
 
     public NewSkins(TelegramLongPollingBot bot) {
         NewSkins.bot = bot;
+        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool( 5 );
     }
 
     public void sendNewSkins(String chatId) {
@@ -37,12 +41,14 @@ public class NewSkins {
         }
         CompletableFuture.runAsync( () -> {
             List<ImageData> imageDataList = getImageDataFromWebpageWithMinSize( 480, 270 );
-            if (!imageDataList.isEmpty())
-                for (ImageData imageData : imageDataList)
+            if (!imageDataList.isEmpty()) {
+                for (ImageData imageData : imageDataList) {
                     sendImage( chatId, imageData );
-            else
+                }
+            } else {
                 sendErrorMessage( chatId );
-        } );
+            }
+        }, executor );
     }
 
     private void sendImage(String chatId, ImageData imageData) {
@@ -94,6 +100,5 @@ public class NewSkins {
 
     private static void sendErrorMessage(String chatId) {
         TelegramBotUtil.sendFormattedText(bot, chatId, "An error occurred. Please try again later.", false, null);
-
     }
 }

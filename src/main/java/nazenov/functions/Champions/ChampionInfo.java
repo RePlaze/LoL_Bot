@@ -6,38 +6,37 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import static nazenov.functions.Champions.ChampionKeyboad.championButtons;
+import java.util.concurrent.CompletableFuture;
 
 public class ChampionInfo {
-    private static TelegramLongPollingBot botInstance;
+    private final TelegramLongPollingBot botInstance;
 
     public ChampionInfo(TelegramLongPollingBot bot) {
-        botInstance = bot;
+        this.botInstance = bot;
     }
 
     public void champOptions(String chatId, String championName) {
-        String imageUrl = getChampionImage( championName );
-        String formattedChampionName = "*" + championName + "*";
+        CompletableFuture.runAsync( () -> {
+            try {
+                String imageUrl = getChampionImage( championName );
+                String formattedChampionName = "*" + championName + "*";
 
-        // Create a SendPhoto object to send the image
-        SendPhoto sendPhoto = new SendPhoto( chatId, new InputFile( imageUrl ) );
-        sendPhoto.setCaption( "Choose an option for " + formattedChampionName );
-        sendPhoto.setParseMode( "Markdown" );
-        sendPhoto.setReplyMarkup( championButtons() );
+                SendPhoto sendPhoto = new SendPhoto( chatId, new InputFile( imageUrl ) );
+                sendPhoto.setCaption( "Build & Counters for " + formattedChampionName );
+                sendPhoto.setParseMode( "Markdown" );
+                sendPhoto.setReplyMarkup( ChampionKeyboad.championButtons() );
 
-        try {
-            // Send the photo with the custom keyboard
-            botInstance.execute( sendPhoto );
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-            TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred while sending the photo.", false, null );
-        }
-        Build build = new Build( botInstance );
-        build.build( chatId, championName );
+                botInstance.execute( sendPhoto );
+
+                Build build = new Build( botInstance );
+                build.build( chatId, championName );
+            } catch (TelegramApiException e) {
+                handleTelegramApiException( e, chatId );
+            }
+        } );
     }
 
-    public static void selectChampion(String chatId) {
-        // Send a message asking for the champion's name
+    public void selectChampion(String chatId) {
         TelegramBotUtil.sendFormattedText( botInstance, chatId, "*Name of Champion?*", true, null );
     }
 
@@ -48,5 +47,10 @@ public class ChampionInfo {
     public void handleUserInput(String chatId, String messageText) {
         String championName = messageText.substring( 0, 1 ).toUpperCase() + messageText.substring( 1 );
         champOptions( chatId, championName );
+    }
+
+    public void handleTelegramApiException(TelegramApiException e, String chatId) {
+        e.printStackTrace();
+        TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred while sending the photo.", false, null );
     }
 }

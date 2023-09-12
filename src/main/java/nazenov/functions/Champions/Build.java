@@ -6,87 +6,128 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Build {
     private final TelegramLongPollingBot botInstance;
+    private final ThreadPoolExecutor executor;
 
     public Build(TelegramLongPollingBot bot) {
-        this.botInstance = bot; // Initialize botInstance here
+        this.botInstance = bot;
+        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool( 5 ); // Use a thread pool for parallel processing
     }
 
     public void build(String chatId, String championName) {
         // Create the URL for the champion
         String championUrl = "https://www.op.gg/champions/" + championName;
 
-        try {
-            String messageText = "Build information for " + championName + ":";
-            SendMessage message = new SendMessage( chatId, messageText );
+        CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
+            try {
+                // Fetch the web page
+                Document document = Jsoup.connect( championUrl ).get();
 
-            // Fetch the web page
-            Document document = Jsoup.connect( championUrl ).get();
+                // Find all images within the <main> section
+                Element mainSection = document.selectFirst( "main" );
+                assert mainSection != null;
+                Elements images = mainSection.select( "img" );
 
-            // Find the table with caption "<caption> Builds</caption>"
-            Elements tables = document.select( "table" );
-            Element targetTable = null;
-            for (Element table : tables) {
-                Element caption = table.selectFirst( "caption" );
-                if (caption != null && caption.text().contains( "Builds" )) {
-                    targetTable = table;
-                    break;
-                }
-            }
+                if (!images.isEmpty()) {
+                    // Reverse the order of images
+                    List<Element> reversedImages = new ArrayList<>( images );
+                    Collections.reverse( reversedImages );
 
-            if (targetTable != null) {
-                // Create a StringBuilder to build the table text with images
-                StringBuilder tableTextWithImages = new StringBuilder();
+                    // Limit to a maximum of 3 images per response and 6 responses
+                    int maxImagesPerResponse = 9;
+                    int maxResponses = 2;
+                    int responseCount = 0;
+                    int startIndex = 0;
 
-                // Iterate through the rows of the table
-                Elements rows = targetTable.select( "tr" );
-                for (Element row : rows) {
-                    // Iterate through the cells of the row
-                    Elements cells = row.select( "td" );
-                    for (Element cell : cells) {
-                        // Check if the cell contains an image (e.g., an item image)
-                        Element img = cell.select( "img" ).first();
-                        if (img != null) {
-                            // Append the image URL to the StringBuilder
-                            String imgUrl = img.attr( "src" );
-                            tableTextWithImages.append( "![Image](" ).append( imgUrl ).append( ") " );
+                    while (responseCount < maxResponses && startIndex < reversedImages.size()) {
+                        int endIndex = Math.min( startIndex + maxImagesPerResponse, reversedImages.size() );
+                        List<Element> subList = reversedImages.subList( startIndex, endIndex );
+
+                        // Create a list to store InputMediaPhoto objects for the album
+                        List<InputMediaPhoto> album = new ArrayList<>();
+
+                        // Add the images from the sublist to the album
+                        for (Element image : subList) {
+                            String imageUrl = image.attr( "src" );
+                            if (!imageUrl.isEmpty()) {
+                                InputMediaPhoto mediaPhoto = new InputMediaPhoto();
+                                mediaPhoto.setMedia( imageUrl );
+                                album.add( mediaPhoto );
+                            }
                         }
 
-                        // Append the cell text to the StringBuilder
-                        String cellText = cell.text();
-
-                        // Extract the text before the '%' character
-                        int percentIndex = cellText.indexOf( '%' );
-                        if (percentIndex != -1) {
-                            cellText = cellText.substring( 0, percentIndex );
+                        // Send the album as a media group, but skip the first response
+                        if (!album.isEmpty() && responseCount > 0) {
+                            sendMediaGroup( chatId, album );
                         }
 
-                        tableTextWithImages.append( cellText ).append( " " );
+                        responseCount++;
+                        startIndex += maxImagesPerResponse;
                     }
-                    // Add a line break after each row
-                    tableTextWithImages.append( "\n" );
+
+                    // Send a reply message
+                    String formatName = "*" + championName + "*";
+                    String replyMessage = "Build for " + formatName + "\n1. Boots option\n2. *Build #1: 1 item -> 2 " +
+                            "item -> 3 item*\n3. `Build #2: (Alternative)`";
+                    sendReplyMessage( chatId, replyMessage );
                 }
-
-                // Set the table text with images as the message text
-                message.setText( tableTextWithImages.toString() );
-                System.out.println( tableTextWithImages );
-
-                // Execute the message
-                botInstance.execute( message );
-            } else {
-                TelegramBotUtil.sendFormattedText( botInstance, chatId, "'Builds' not found for " + championName, false, null );
+            } catch (IOException e) {
+                e.printStackTrace();
+                handleException( chatId );
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred while fetching the data.", false, null );
-        } catch (Exception e) {
-            e.printStackTrace();
-            TelegramBotUtil.sendFormattedText( botInstance, chatId, "Error", false, null );
-        }
+        }, executor );
+    }
+
+    // Method to send a media group with a caption
+    public void sendMediaGroup(String chatId, List<InputMediaPhoto> mediaList) {
+        CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
+            try {
+                SendMediaGroup mediaGroup = new SendMediaGroup();
+                mediaGroup.setChatId( chatId );
+                Collections.reverse( mediaList );
+                mediaGroup.setMedias( Collections.unmodifiableList( mediaList ) );
+
+                botInstance.execute( mediaGroup );
+            } catch (Exception e) {
+                e.printStackTrace();
+                handleException( chatId );
+            }
+        }, executor );
+    }
+
+    // Method to send a text reply message
+    public void sendReplyMessage(String chatId, String message) {
+        CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId( chatId );
+            sendMessage.setText( message );
+            sendMessage.enableMarkdown( true );
+
+            try {
+                botInstance.execute( sendMessage );
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+                handleException( chatId );
+            }
+        }, executor );
+    }
+
+    // Handle exceptions and errors
+    private void handleException(String chatId) {
+        TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred.", false, null );
     }
 }
