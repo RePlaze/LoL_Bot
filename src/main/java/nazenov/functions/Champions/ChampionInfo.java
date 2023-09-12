@@ -46,7 +46,16 @@ public class ChampionInfo {
 
     public void handleUserInput(String chatId, String messageText) {
         String championName = messageText.substring( 0, 1 ).toUpperCase() + messageText.substring( 1 );
-        champOptions( chatId, championName );
+
+        // Check if the champion name is valid or suggest similar names
+        SearchName searchName = new SearchName();
+        String suggestion = searchName.findBestMatch( championName );
+        if (!suggestion.equalsIgnoreCase( championName )) {
+            TelegramBotUtil.sendFormattedText( botInstance, chatId,
+                    "*" + championName + "* not found. Did you mean *" + suggestion + "*?", true, null );
+        } else {
+            champOptions( chatId, championName );
+        }
     }
 
     public void handleTelegramApiException(TelegramApiException e, String chatId) {
