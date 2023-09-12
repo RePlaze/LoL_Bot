@@ -24,16 +24,36 @@ public class ChampionInfo {
                 SendPhoto sendPhoto = new SendPhoto( chatId, new InputFile( imageUrl ) );
                 sendPhoto.setCaption( "Build & Counters for " + formattedChampionName );
                 sendPhoto.setParseMode( "Markdown" );
-                sendPhoto.setReplyMarkup( ChampionKeyboad.championButtons() );
+                sendPhoto.setReplyMarkup( ChampOption.championOptionsKeyboard( chatId, championName ) );
 
                 botInstance.execute( sendPhoto );
-
-                Build build = new Build( botInstance );
-                build.build( chatId, championName );
             } catch (TelegramApiException e) {
                 handleTelegramApiException( e, chatId );
             }
         } );
+    }
+
+    public void handleCallbackQuery(String chatId, String callbackData) {
+        String[] parts = callbackData.split( ":" );
+        if (parts.length == 3) {
+            String action = parts[0];
+            String chatIdFromCallback = parts[1];
+            String championName = parts[2];
+
+            System.out.println( chatId );
+            System.out.println( chatIdFromCallback );
+            System.out.println( action );
+            System.out.println( championName );
+
+            if (action.equals( "view_builds" )) {
+                // Handle "View Builds" action here
+                Build build = new Build( botInstance );
+                build.build( chatIdFromCallback, championName );
+            } else if (action.equals( "view_counters" )) {
+                // Handle "View Counters" action here
+                // Implement the logic for viewing counters
+            }
+        }
     }
 
     public void selectChampion(String chatId) {
