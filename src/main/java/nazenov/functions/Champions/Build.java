@@ -34,7 +34,6 @@ public class Build {
 
         CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
             try {
-                // Fetch the web page
                 Document document = Jsoup.connect( championUrl ).get();
 
                 // Find all images within the <main> section
@@ -47,7 +46,6 @@ public class Build {
                     List<Element> reversedImages = new ArrayList<>( images );
                     Collections.reverse( reversedImages );
 
-                    // Limit to a maximum of 3 images per response and 6 responses
                     int maxImagesPerResponse = 9;
                     int maxResponses = 2;
                     int responseCount = 0;
@@ -92,7 +90,6 @@ public class Build {
         }, executor );
     }
 
-    // Method to send a media group with a caption
     public void sendMediaGroup(String chatId, List<InputMediaPhoto> mediaList) {
         CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
             try {
@@ -108,8 +105,6 @@ public class Build {
             }
         }, executor );
     }
-
-    // Method to send a text reply message
     public void sendReplyMessage(String chatId, String message) {
         CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
             SendMessage sendMessage = new SendMessage();
@@ -126,7 +121,6 @@ public class Build {
         }, executor );
     }
 
-    // Handle exceptions and errors
     private void handleException(String chatId) {
         TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred.", false, null );
     }
