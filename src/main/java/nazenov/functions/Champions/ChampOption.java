@@ -11,24 +11,22 @@ public class ChampOption {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        // Add "View Builds" button
-        InlineKeyboardButton buildButton = new InlineKeyboardButton();
-        buildButton.setText( "Builds" );
-        buildButton.setCallbackData( "view_builds:" + chatId + ":" + championName ); // Pass chatId and championName as part of callback data
-        List<InlineKeyboardButton> buildRow = new ArrayList<>();
-        buildRow.add( buildButton );
-
-        // Add "View Counters" button
-        InlineKeyboardButton countersButton = new InlineKeyboardButton();
-        countersButton.setText( "Counters" );
-        countersButton.setCallbackData( "view_counters:" + chatId + ":" + championName ); // Replace with appropriate callback data
-        List<InlineKeyboardButton> countersRow = new ArrayList<>();
-        countersRow.add( countersButton );
-
-        rows.add( buildRow );
-        rows.add( countersRow );
+        // Helper function to create and add a button to a row
+        addInlineButton( rows, "Builds", "view_builds", chatId, championName );
+        addInlineButton( rows, "Counters", "view_counters", chatId, championName );
 
         keyboardMarkup.setKeyboard( rows );
         return keyboardMarkup;
+    }
+
+    private static void addInlineButton(List<List<InlineKeyboardButton>> rows, String buttonText, String callbackData, String chatId, String championName) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText( buttonText );
+        button.setCallbackData( callbackData + ":" + chatId + ":" + championName );
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add( button );
+
+        rows.add( row );
     }
 }

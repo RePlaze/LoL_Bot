@@ -35,7 +35,6 @@ public class Counters {
                 // Find the main table section with counters
                 Element mainSection = document.select( "div.counters-list.best-win-rate" ).first();
                 if (mainSection != null) {
-                    // Find all anchor elements with the specified class within the main section
                     Elements counterElements = mainSection.select( "a.counter-list-card.best-win-rate" );
 
                     // Process the counter elements
@@ -46,7 +45,6 @@ public class Counters {
                         int insertIndex = counterName.indexOf( ' ' ) + 1;
 
                         if (insertIndex >= 0 && insertIndex < counterName.length()) {
-                            // Insert asterisks in the middle of the name
                             counterName = counterName.substring( 0, insertIndex ) + "*" + counterName.substring( insertIndex );
                         }
 
@@ -79,7 +77,6 @@ public class Counters {
 
             sendMessage.setText( message );
             sendMessage.enableMarkdown( true );
-            System.out.println( message );
 
             try {
                 botInstance.execute( sendMessage );

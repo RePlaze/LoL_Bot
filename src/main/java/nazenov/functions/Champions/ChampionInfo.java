@@ -33,48 +33,29 @@ public class ChampionInfo {
         } );
     }
 
-    public void handleCallbackQuery(String chatId, String callbackData) {
-        String[] parts = callbackData.split( ":" );
-        if (parts.length == 3) {
-            String action = parts[0];
-            String chatIdFromCallback = parts[1];
-            String championName = parts[2];
-
-            if (action.equals( "view_builds" )) {
-                // Handle "View Builds" action here
-                Build build = new Build( botInstance );
-                build.build( chatIdFromCallback, championName );
-            } else if (action.equals( "view_counters" )) {
-                // Handle "View Counters" action here
-                // Implement the logic for viewing counters
-            }
-        }
-    }
-
     public void selectChampion(String chatId) {
         TelegramBotUtil.sendFormattedText( botInstance, chatId, "*Name of Champion?*", true, null );
     }
 
     private String getChampionImage(String championName) {
-        return "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" + championName.replaceAll( "'", "" ) + "_0.jpg";
+        return "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" +
+                championName.replaceAll( "'", "" ) + "_0.jpg";
     }
 
     public void handleUserInput(String chatId, String messageText) {
         String championName = messageText.substring( 0, 1 ).toUpperCase() + messageText.substring( 1 );
-
-        // Check if the champion name is valid or suggest similar names
         SearchName searchName = new SearchName();
         String suggestion = searchName.findBestMatch( championName );
-        if (!suggestion.equalsIgnoreCase( championName )) {
+
+        if (!suggestion.equalsIgnoreCase( championName ))
             TelegramBotUtil.sendFormattedText( botInstance, chatId,
                     "*" + championName + "* not found. Did you mean *" + suggestion + "*?", true, null );
-        } else {
+        else
             champOptions( chatId, championName );
-        }
     }
 
     public void handleTelegramApiException(TelegramApiException e, String chatId) {
         e.printStackTrace();
-        TelegramBotUtil.sendFormattedText( botInstance, chatId, "An error occurred while sending the photo.", false, null );
+        TelegramBotUtil.sendFormattedText( botInstance, chatId, "Error sending the photo.", false, null );
     }
 }

@@ -25,14 +25,13 @@ public class Build {
 
     public Build(TelegramLongPollingBot bot) {
         this.botInstance = bot;
-        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool( 5 ); // Use a thread pool for parallel processing
+        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool( 5 );
     }
 
     public void build(String chatId, String championName) {
-        // Create the URL for the champion
         String championUrl = "https://www.op.gg/champions/" + championName;
 
-        CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
+        CompletableFuture.runAsync( () -> {
             try {
                 Document document = Jsoup.connect( championUrl ).get();
 
@@ -42,7 +41,6 @@ public class Build {
                 Elements images = mainSection.select( "img" );
 
                 if (!images.isEmpty()) {
-                    // Reverse the order of images
                     List<Element> reversedImages = new ArrayList<>( images );
                     Collections.reverse( reversedImages );
 
@@ -54,8 +52,6 @@ public class Build {
                     while (responseCount < maxResponses && startIndex < reversedImages.size()) {
                         int endIndex = Math.min( startIndex + maxImagesPerResponse, reversedImages.size() );
                         List<Element> subList = reversedImages.subList( startIndex, endIndex );
-
-                        // Create a list to store InputMediaPhoto objects for the album
                         List<InputMediaPhoto> album = new ArrayList<>();
 
                         // Add the images from the sublist to the album
@@ -68,7 +64,6 @@ public class Build {
                             }
                         }
 
-                        // Send the album as a media group, but skip the first response
                         if (!album.isEmpty() && responseCount > 0) {
                             sendMediaGroup( chatId, album );
                         }
@@ -91,7 +86,7 @@ public class Build {
     }
 
     public void sendMediaGroup(String chatId, List<InputMediaPhoto> mediaList) {
-        CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
+        CompletableFuture.runAsync( () -> {
             try {
                 SendMediaGroup mediaGroup = new SendMediaGroup();
                 mediaGroup.setChatId( chatId );
@@ -106,14 +101,13 @@ public class Build {
         }, executor );
     }
     public void sendReplyMessage(String chatId, String message) {
-        CompletableFuture.runAsync( () -> { // Use CompletableFuture for async processing
+        CompletableFuture.runAsync( () -> {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId( chatId );
             sendMessage.setText( message );
             sendMessage.enableMarkdown( true );
 
             try {
-                System.out.println( "Hello World!" );
                 botInstance.execute( sendMessage );
             } catch (TelegramApiException e) {
                 e.printStackTrace();
