@@ -1,8 +1,8 @@
 package nazenov;
 
 import nazenov.functions.Champions.Build;
-import nazenov.functions.Champions.ChampionInfo;
 import nazenov.functions.Champions.Counters;
+import nazenov.functions.Champions.utils.ChampionInfo;
 import nazenov.functions.NewSkins;
 import nazenov.functions.PatchDate;
 import nazenov.utils.OptionBar;
@@ -32,19 +32,17 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Message message = update.getMessage();
             String text = message.getText().toLowerCase();
+            String chatId = message.getChatId().toString();
 
             switch (text) {
                 case "/start", "back" ->
                         TelegramBotUtil.sendFormattedText( this, message.getChatId().toString(), "*Choose an option*", true, OptionBar.buildKeyboard() );
-                case "new skins" ->
-                        CompletableFuture.runAsync( () -> new NewSkins( this ).sendNewSkins( message.getChatId().toString() ) );
-                case "patch dates" ->
-                        CompletableFuture.runAsync( () -> new PatchDate( this ).patches( message.getChatId().toString() ) );
+                case "new skins" -> CompletableFuture.runAsync( () -> new NewSkins( this ).sendNewSkins( chatId ) );
+                case "patch dates" -> CompletableFuture.runAsync( () -> new PatchDate( this ).patches( chatId ) );
                 case "champion info" ->
-                        CompletableFuture.runAsync( () -> new ChampionInfo( this ).selectChampion( message.getChatId().toString() ) );
+                        CompletableFuture.runAsync( () -> new ChampionInfo( this ).selectChampion( chatId ) );
                 case "exit" -> System.exit( 0 );
-                default ->
-                        CompletableFuture.runAsync( () -> new ChampionInfo( this ).handleUserInput( message.getChatId().toString(), text ) );
+                default -> CompletableFuture.runAsync( () -> new ChampionInfo( this ).handleUserInput( chatId, text ) );
             }
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();

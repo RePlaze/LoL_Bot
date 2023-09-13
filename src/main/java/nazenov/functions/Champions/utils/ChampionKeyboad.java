@@ -1,4 +1,4 @@
-package nazenov.functions.Champions;
+package nazenov.functions.Champions.utils;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;

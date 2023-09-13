@@ -1,5 +1,6 @@
-package nazenov.functions.Champions;
+package nazenov.functions.Champions.utils;
 
+import nazenov.functions.Champions.SearchName;
 import nazenov.utils.TelegramBotUtil;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -22,7 +23,7 @@ public class ChampionInfo {
                 String formattedChampionName = "*" + championName + "*";
 
                 SendPhoto sendPhoto = new SendPhoto( chatId, new InputFile( imageUrl ) );
-                sendPhoto.setCaption( "Build & Counters for " + formattedChampionName );
+                sendPhoto.setCaption( "```select option for: ``` " + formattedChampionName );
                 sendPhoto.setParseMode( "Markdown" );
                 sendPhoto.setReplyMarkup( ChampOption.championOptionsKeyboard( chatId, championName ) );
 
