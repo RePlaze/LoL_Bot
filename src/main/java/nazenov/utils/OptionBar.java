@@ -24,6 +24,7 @@ public class OptionBar {
         // Create a new KeyboardRow for "New Skins" and "Patch Dates" buttons in the same row
         KeyboardRow secondaryRow = new KeyboardRow();
         secondaryRow.add( "New Skins" );
+        secondaryRow.add( "News" );
         secondaryRow.add( "Patch Dates" );
         keyboard.add( secondaryRow );
 

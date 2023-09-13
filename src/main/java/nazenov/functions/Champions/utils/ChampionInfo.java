@@ -20,10 +20,9 @@ public class ChampionInfo {
         CompletableFuture.runAsync( () -> {
             try {
                 String imageUrl = getChampionImage( championName );
-                String formattedChampionName = "*" + championName + "*";
 
                 SendPhoto sendPhoto = new SendPhoto( chatId, new InputFile( imageUrl ) );
-                sendPhoto.setCaption( "```select option for: ``` " + formattedChampionName );
+                sendPhoto.setCaption( "``` select option for``` *" + championName + "*" );
                 sendPhoto.setParseMode( "Markdown" );
                 sendPhoto.setReplyMarkup( ChampOption.championOptionsKeyboard( chatId, championName ) );
 
