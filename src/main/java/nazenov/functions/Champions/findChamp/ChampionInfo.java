@@ -1,6 +1,5 @@
-package nazenov.functions.Champions.utils;
+package nazenov.functions.Champions.findChamp;
 
-import nazenov.functions.Champions.SearchName;
 import nazenov.utils.TelegramBotUtil;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -34,7 +33,7 @@ public class ChampionInfo {
     }
 
     public void selectChampion(String chatId) {
-        TelegramBotUtil.sendFormattedText( botInstance, chatId, "*Name of Champion?*", true, null );
+        TelegramBotUtil.sendFormattedText( botInstance, chatId, "*Name of Champion?*", true, ChampionKeyboad.championButtons() );
     }
 
     private String getChampionImage(String championName) {

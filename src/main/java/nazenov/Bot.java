@@ -2,7 +2,7 @@ package nazenov;
 
 import nazenov.functions.Champions.Build;
 import nazenov.functions.Champions.Counters;
-import nazenov.functions.Champions.utils.ChampionInfo;
+import nazenov.functions.Champions.findChamp.ChampionInfo;
 import nazenov.functions.NewSkins;
 import nazenov.functions.News;
 import nazenov.functions.PatchDate;
@@ -25,7 +25,7 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "6699616361:AAG03q66m9ibreMrjWtjTaYT52ioOuytFwI";
+        return "";
     }
 
     @Override
@@ -37,7 +37,7 @@ public class Bot extends TelegramLongPollingBot {
 
             switch (text) {
                 case "/start", "back" ->
-                        TelegramBotUtil.sendFormattedText( this, message.getChatId().toString(), "*Choose an option*", true, OptionBar.buildKeyboard() );
+                        TelegramBotUtil.sendFormattedText( this, chatId, "*Choose an option*", true, OptionBar.buildKeyboard() );
                 case "new skins" -> CompletableFuture.runAsync( () -> new NewSkins( this ).sendNewSkins( chatId ) );
                 case "patch dates" -> CompletableFuture.runAsync( () -> new PatchDate( this ).patches( chatId ) );
                 case "champion info" ->

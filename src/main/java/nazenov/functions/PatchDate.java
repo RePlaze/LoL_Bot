@@ -28,7 +28,7 @@ public class PatchDate {
 
             List<String> patchInfoList = new ArrayList<>();
 
-            // Get today's date and day
+            // Get today`s date and day
             Calendar calendar = new GregorianCalendar();
             Date today = calendar.getTime();
             int todayDay = calendar.get(Calendar.DAY_OF_MONTH);

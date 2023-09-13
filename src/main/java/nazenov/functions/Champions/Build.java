@@ -1,81 +1,77 @@
 package nazenov.functions.Champions;
 
+import nazenov.utils.SendMessage;
 import nazenov.utils.TelegramBotUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class Build {
     private final TelegramLongPollingBot botInstance;
-    private final ThreadPoolExecutor executor;
+    private final ExecutorService executor;
+    private final SendMessage sendMessage;
+
 
     public Build(TelegramLongPollingBot bot) {
         this.botInstance = bot;
-        this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool( 5 );
+        this.executor = Executors.newFixedThreadPool( 5 );
+        this.sendMessage = new SendMessage( bot, executor );
     }
 
     public void build(String chatId, String championName) {
-        String championUrl = "https://www.op.gg/champions/" + championName;
+        String championUrl = "https://www.mobafire.com/league-of-legends/champion/" + championName;
 
         CompletableFuture.runAsync( () -> {
             try {
                 Document document = Jsoup.connect( championUrl ).get();
+                Elements tables = document.select( "div.champ-build__section__content" );
 
-                // Find all images within the <main> section
-                Element mainSection = document.selectFirst( "main" );
-                assert mainSection != null;
-                Elements images = mainSection.select( "img" );
+                if (!tables.isEmpty()) {
+                    List<String> tableTexts = new ArrayList<>();
 
-                if (!images.isEmpty()) {
-                    List<Element> reversedImages = new ArrayList<>( images );
-                    Collections.reverse( reversedImages );
+                    String[] prefixes = {"`Runes`: ", "`Summoners`: ", "``First Buy``: ", "`Main`", "",
+                            "`Last item`: "};
 
-                    int maxImagesPerResponse = 9;
-                    int maxResponses = 2;
-                    int responseCount = 0;
-                    int startIndex = 0;
+                    for (int i = 0; i < Math.min( tables.size(), prefixes.length ); i++) {
+                        Element table = tables.get( i );
+                        String tableText = table.text()
+                                .replaceAll( "\\bSecond\\b|\\bBest\\b|\\bWin Rate\\b|\\d+|%", "" )
+                                .replaceAll( "\\bPickrate\\b", "\n" );
 
-                    while (responseCount < maxResponses && startIndex < reversedImages.size()) {
-                        int endIndex = Math.min( startIndex + maxImagesPerResponse, reversedImages.size() );
-                        List<Element> subList = reversedImages.subList( startIndex, endIndex );
-                        List<InputMediaPhoto> album = new ArrayList<>();
-
-                        // Add the images from the sublist to the album
-                        for (Element image : subList) {
-                            String imageUrl = image.attr( "src" );
-                            if (!imageUrl.isEmpty()) {
-                                InputMediaPhoto mediaPhoto = new InputMediaPhoto();
-                                mediaPhoto.setMedia( imageUrl );
-                                album.add( mediaPhoto );
+                        if (i == 0 || i == 1) {
+                            String[] words = tableText.split( "\\s+" );
+                            if (words.length > 2)
+                                tableText = words[0] + " " + words[1];
+                        } else if (i == 2) {
+                            String[] lines = tableText.split( "\n" );
+                            if (lines.length > 0)
+                                tableText = lines[0];
+                        } else if (i == 3) {
+                            String[] lines = tableText.split( "\n" );
+                            StringBuilder modifiedText = new StringBuilder();
+                            for (String line : lines) {
+                                modifiedText.append( "`Build`: " ).append( line ).append( "\n" );
                             }
+                            tableText = modifiedText.toString();
                         }
-
-                        if (!album.isEmpty() && responseCount > 0) {
-                            sendMediaGroup( chatId, album );
+                        tableText = tableText.replaceAll( "\\bThird\\b", "" );
+                        if (!tableText.isEmpty()) {
+                            tableTexts.add( prefixes[i] + tableText );
                         }
-
-                        responseCount++;
-                        startIndex += maxImagesPerResponse;
                     }
 
-                    // Send a reply message
+                    String replyMessage = String.join( "\n\n", tableTexts );
                     String formatName = "*" + championName + "*";
-                    String replyMessage = "Build for " + formatName + "\n1. Boots option\n2. *Build #1: 1 item -> 2 " +
-                            "item -> 3 item*\n3. `Build #2: (Alternative)`";
+                    replyMessage = "Build for " + formatName + "\n\n" + replyMessage;
                     sendReplyMessage( chatId, replyMessage );
                 }
             } catch (IOException e) {
@@ -85,35 +81,8 @@ public class Build {
         }, executor );
     }
 
-    public void sendMediaGroup(String chatId, List<InputMediaPhoto> mediaList) {
-        CompletableFuture.runAsync( () -> {
-            try {
-                SendMediaGroup mediaGroup = new SendMediaGroup();
-                mediaGroup.setChatId( chatId );
-                Collections.reverse( mediaList );
-                mediaGroup.setMedias( Collections.unmodifiableList( mediaList ) );
-
-                botInstance.execute( mediaGroup );
-            } catch (Exception e) {
-                e.printStackTrace();
-                handleException( chatId );
-            }
-        }, executor );
-    }
     public void sendReplyMessage(String chatId, String message) {
-        CompletableFuture.runAsync( () -> {
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId( chatId );
-            sendMessage.setText( message );
-            sendMessage.enableMarkdown( true );
-
-            try {
-                botInstance.execute( sendMessage );
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-                handleException( chatId );
-            }
-        }, executor );
+        sendMessage.sendReplyMessage( chatId, message ); // Use the sendMessageUtil instance
     }
 
     private void handleException(String chatId) {

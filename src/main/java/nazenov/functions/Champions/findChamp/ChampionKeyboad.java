@@ -1,6 +1,5 @@
-package nazenov.functions.Champions.utils;
+package nazenov.functions.Champions.findChamp;
 
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -8,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChampionKeyboad {
-    public static ReplyKeyboard championButtons() {
+    public static ReplyKeyboardMarkup championButtons() {
         // Create a custom keyboard
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setSelective( true );

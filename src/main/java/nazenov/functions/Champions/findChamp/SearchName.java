@@ -1,4 +1,4 @@
-package nazenov.functions.Champions;
+package nazenov.functions.Champions.findChamp;
 
 import static nazenov.utils.ChampionsNames.championNames;
 
