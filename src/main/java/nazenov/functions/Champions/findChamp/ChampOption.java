@@ -13,6 +13,7 @@ public class ChampOption {
 
         addInlineButton( rows, "Builds", "view_builds", chatId, championName );
         addInlineButton( rows, "Counters", "view_counters", chatId, championName );
+        addInlineButton( rows, "Guide", "view_guide", chatId, championName );
 
         // Modify the "Guide" button to open a website link
         addInlineButtonWithLink( rows, "Abilities",

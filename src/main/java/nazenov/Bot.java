@@ -46,25 +46,25 @@ public class Bot extends TelegramLongPollingBot {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             String data = callbackQuery.getData();
 
-                String[] parts = data.split( ":" );
-                String chatId = parts[1];
-                String championName = parts[2];
+            String[] parts = data.split( ":" );
+            String chatId = parts[1];
+            String championName = parts[2];
 
             if (data.startsWith( "view_builds:" ))
                 new Build( this ).build( chatId, championName );
             else if (data.startsWith( "view_counters:" ))
                 new Counters( this ).counters( chatId, championName );
             else if (data.startsWith( "view_guide:" ))
-                new Guide( this ).combo( chatId, championName );
+                new Guide( this ).guide( chatId, championName );
 
 
-                AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-                answerCallbackQuery.setCallbackQueryId( callbackQuery.getId() );
-                try {
-                    execute( answerCallbackQuery );
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId( callbackQuery.getId() );
+            try {
+                execute( answerCallbackQuery );
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
             }
         }
     }
+}

@@ -72,8 +72,8 @@ public class Counters {
     private void sendCounterMessages(String chatId, String championName, List<String> bestCounters, List<String> worstCounters) {
         if (!bestCounters.isEmpty() || !worstCounters.isEmpty()) {
             String formatName = "*" + championName + "*";
-            String bestCounterMessage = formatName + " ```Lost against```:\n" + String.join( "\n", bestCounters );
-            String worstCounterMessage = formatName + " ```Wins against```:\n" + String.join( "\n", worstCounters );
+            String bestCounterMessage = formatName + " ``` Lost against```:\n" + String.join( "\n", bestCounters );
+            String worstCounterMessage = formatName + " ``` Wins against```:\n" + String.join( "\n", worstCounters );
 
             sendReplyMessage( chatId, bestCounterMessage );
             sendReplyMessage( chatId, worstCounterMessage );

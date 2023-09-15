@@ -335,7 +335,7 @@ public class ChampionsNames {
             "Zyanya's Dominance",
             "Zyanya's Embrace"
     };
-    String[] lolItemsRU = {
+    public static String[] lolItemsRU = {
             "Маска Бездны",
             "Адаптивный Шлем",
             "Эгиды Легиона",
@@ -506,7 +506,6 @@ public class ChampionsNames {
             "Доминирование Джони",
             "Объятия Джони"
     };
-
 
 }
 

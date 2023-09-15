@@ -9,21 +9,35 @@ import java.util.List;
 public class ChampionKeyboad {
     public static ReplyKeyboardMarkup championButtons() {
         // Create a custom keyboard
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setSelective( true );
-        keyboardMarkup.setResizeKeyboard( true );
-        keyboardMarkup.setOneTimeKeyboard( false );
+        ReplyKeyboardMarkup k = new ReplyKeyboardMarkup();
+        k.setSelective( true );
+        k.setResizeKeyboard( true );
+        k.setOneTimeKeyboard( false );
 
         List<KeyboardRow> keyboard = new ArrayList<>();
-//        KeyboardRow keyboardRow1 = new KeyboardRow();
-        KeyboardRow keyboardRow2 = new KeyboardRow();
+        KeyboardRow keyboardRow = new KeyboardRow();
 
-        // Add buttons to the keyboard rows
-        keyboardRow2.add( "Back" );
+        keyboardRow.add( "Back" );
 
-//        keyboard.add( keyboardRow1 );
-        keyboard.add( keyboardRow2 );
-        keyboardMarkup.setKeyboard( keyboard );
-        return keyboardMarkup;
+        keyboard.add( keyboardRow );
+        k.setKeyboard( keyboard );
+        return k;
+    }
+
+    public static ReplyKeyboardMarkup yesButton(String s) {
+        // Create a custom keyboard
+        ReplyKeyboardMarkup k = new ReplyKeyboardMarkup();
+        k.setSelective( true );
+        k.setResizeKeyboard( true );
+        k.setOneTimeKeyboard( false );
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow keyboardRow = new KeyboardRow();
+
+        keyboardRow.add( s );
+
+        keyboard.add( keyboardRow );
+        k.setKeyboard( keyboard );
+        return k;
     }
 }
