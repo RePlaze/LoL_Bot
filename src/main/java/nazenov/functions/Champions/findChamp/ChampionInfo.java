@@ -7,12 +7,16 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChampionInfo {
     private final TelegramLongPollingBot botInstance;
+    private final ExecutorService executorService;
 
     public ChampionInfo(TelegramLongPollingBot bot) {
         this.botInstance = bot;
+        this.executorService = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
     }
 
     public void champOptions(String chatId, String championName) {
@@ -29,7 +33,7 @@ public class ChampionInfo {
             } catch (TelegramApiException e) {
                 handleTelegramApiException( e, chatId );
             }
-        } );
+        }, executorService );
     }
 
     public void selectChampion(String chatId) {
@@ -37,8 +41,7 @@ public class ChampionInfo {
     }
 
     private String getChampionImage(String championName) {
-        return "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/" +
-                championName.replaceAll( "'", "" ) + "_0.jpg";
+        return String.format( "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/%s_0.jpg", championName.replaceAll( "'", "" ) );
     }
 
     public void handleUserInput(String chatId, String messageText) {

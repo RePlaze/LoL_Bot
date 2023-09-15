@@ -11,9 +11,12 @@ public class ChampOption {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        // Helper function to create and add a button to a row
         addInlineButton( rows, "Builds", "view_builds", chatId, championName );
         addInlineButton( rows, "Counters", "view_counters", chatId, championName );
+
+        // Modify the "Guide" button to open a website link
+        addInlineButtonWithLink( rows, "Abilities",
+                "https://app.mobalytics.gg/lol/champions/" + championName.toLowerCase() + "/combos", chatId );
 
         keyboardMarkup.setKeyboard( rows );
         return keyboardMarkup;
@@ -26,7 +29,16 @@ public class ChampOption {
 
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add( button );
+        rows.add( row );
+    }
 
+    private static void addInlineButtonWithLink(List<List<InlineKeyboardButton>> rows, String buttonText, String url, String chatId) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText( buttonText );
+        button.setUrl( url );
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add( button );
         rows.add( row );
     }
 }

@@ -1,6 +1,5 @@
 package nazenov.functions;
 
-import nazenov.utils.ImageData;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,48 +21,14 @@ public class News {
         this.bot = bot;
     }
 
-    boolean newChampion = true;
-    String championName = "Briar";
-    boolean anons = true;
-    String newChampionUrl = "https://www.leagueoflegends.com/en-us/event/briar-abilities-rundown/";
-
-    public void checkNews(String chatId) {
-        if (newChampion)
-            newChampion( chatId, newChampionUrl, championName );
-        if (anons)
-            newsAnons( chatId );
-    }
-
-    private void newsAnons(String chatId) {
-        patches( chatId );
-    }
-
-    public void newChampion(String chatId, String newChampionUrl, String championName) {
+    private void sendImage(String chatId, String imageUrl, String caption) {
         try {
-            Document document = Jsoup.connect( newChampionUrl ).get();
-
-            Elements imgElements = document.select( "body img" );
-            if (!imgElements.isEmpty()) {
-                Element firstImage = imgElements.first();
-                String imageUrl = Objects.requireNonNull( firstImage ).absUrl( "src" );
-
-                ImageData imageData = new ImageData( imageUrl, "*News! New champion release Meet: " + championName + "*" );
-
-                sendImage( chatId, imageData );
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendImage(String chatId, ImageData imageData) {
-        try {
-            InputStream inputStream = new URL( imageData.getImageUrl() ).openStream();
+            InputStream inputStream = new URL( imageUrl ).openStream();
             InputFile image = new InputFile( inputStream, "image.jpg" );
             SendPhoto sendPhoto = new SendPhoto( chatId, image );
 
-            if (!imageData.getDescription().isEmpty()) {
-                sendPhoto.setCaption( imageData.getDescription() );
+            if (!caption.isEmpty()) {
+                sendPhoto.setCaption( caption );
                 sendPhoto.setParseMode( "Markdown" );
             }
 
@@ -73,7 +38,36 @@ public class News {
         }
     }
 
-    public void patches(String chatId) {
+    public void checkNews(String chatId) {
+        checkNewChampion( chatId );
+        checkNewsAnons( chatId );
+    }
+
+    private void checkNewChampion(String chatId) {
+        String championName = "Briar";
+        String newChampionUrl = "https://www.leagueoflegends.com/en-us/event/briar-abilities-rundown/";
+
+        try {
+            Document document = Jsoup.connect( newChampionUrl ).get();
+            Elements imgElements = document.select( "body img" );
+
+            if (!imgElements.isEmpty()) {
+                Element firstImage = imgElements.first();
+                String imageUrl = Objects.requireNonNull( firstImage ).absUrl( "src" );
+
+                String caption = "*News! New champion release Meet: " + championName + "*";
+                sendImage( chatId, imageUrl, caption );
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void checkNewsAnons(String chatId) {
+        checkPatches( chatId );
+    }
+
+    private void checkPatches(String chatId) {
         try {
             String todayPatch = "13-18";
             String webpageUrl = "https://www.leagueoflegends.com/en-us/news/game-updates/patch-" + todayPatch + "-notes/";
@@ -82,17 +76,13 @@ public class News {
 
             if (patchNotesContainer != null) {
                 Elements images = patchNotesContainer.select( "img" );
-                if (!images.isEmpty()) {
+
+                if (!images.isEmpty() && images.size() >= 2) {
                     Element secondImage = images.get( 1 );
                     String imageUrl = secondImage.absUrl( "src" );
 
-                    SendPhoto sendPhoto = new SendPhoto();
-                    sendPhoto.setChatId( chatId );
-                    sendPhoto.setPhoto( new InputFile( imageUrl ) );
-                    sendPhoto.setCaption( "*New Patch! check the updates*" );
-                    sendPhoto.setParseMode( "Markdown" );
-
-                    bot.execute( sendPhoto );
+                    String caption = "*New Patch! check the updates*";
+                    sendImage( chatId, imageUrl, caption );
                 }
             }
         } catch (Exception e) {

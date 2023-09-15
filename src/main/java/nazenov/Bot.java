@@ -1,11 +1,7 @@
 package nazenov;
 
-import nazenov.functions.Champions.Build;
-import nazenov.functions.Champions.Counters;
+import nazenov.functions.*;
 import nazenov.functions.Champions.findChamp.ChampionInfo;
-import nazenov.functions.NewSkins;
-import nazenov.functions.News;
-import nazenov.functions.PatchDate;
 import nazenov.utils.OptionBar;
 import nazenov.utils.TelegramBotUtil;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -50,15 +46,16 @@ public class Bot extends TelegramLongPollingBot {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             String data = callbackQuery.getData();
 
-            if (data.startsWith( "view_builds:" ) || data.startsWith( "view_counters:" )) {
                 String[] parts = data.split( ":" );
                 String chatId = parts[1];
                 String championName = parts[2];
 
-                if (data.startsWith( "view_builds:" ))
-                    new Build( this ).build( chatId, championName );
-                else
-                    new Counters( this ).counters( chatId, championName );
+            if (data.startsWith( "view_builds:" ))
+                new Build( this ).build( chatId, championName );
+            else if (data.startsWith( "view_counters:" ))
+                new Counters( this ).counters( chatId, championName );
+            else if (data.startsWith( "view_guide:" ))
+                new Guide( this ).combo( chatId, championName );
 
 
                 AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
@@ -71,4 +68,3 @@ public class Bot extends TelegramLongPollingBot {
             }
         }
     }
-}
