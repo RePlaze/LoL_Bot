@@ -8,7 +8,7 @@ public class SearchName {
         int bestDistance = Integer.MAX_VALUE;
 
         for (String name : championNames) {
-            int distance = calculateLevenshteinDistance( championName.toLowerCase(), name.toLowerCase() );
+            int distance = calculateLevenshteinDistance( championName, name );
 
             if (distance < bestDistance) {
                 bestMatch = name;
@@ -18,11 +18,11 @@ public class SearchName {
 
         int threshold = 3;
 
-        if (bestDistance <= threshold) {
+        if (bestDistance <= threshold)
             return bestMatch;
-        } else {
+        else
             return null;
-        }
+
     }
 
     // Custom Levenshtein distance calculation
@@ -31,11 +31,11 @@ public class SearchName {
 
         for (int i = 0; i <= s1.length(); i++) {
             for (int j = 0; j <= s2.length(); j++) {
-                if (i == 0) {
+                if (i == 0)
                     dp[i][j] = j;
-                } else if (j == 0) {
+                else if (j == 0)
                     dp[i][j] = i;
-                } else {
+                else {
                     int cost = (s1.charAt( i - 1 ) != s2.charAt( j - 1 )) ? 1 : 0;
                     dp[i][j] = Math.min( Math.min( dp[i - 1][j] + 1, dp[i][j - 1] + 1 ), dp[i - 1][j - 1] + cost );
                 }

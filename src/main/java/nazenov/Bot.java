@@ -28,17 +28,17 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Message message = update.getMessage();
-            String text = message.getText().toLowerCase();
+            String text = message.getText();
             String chatId = message.getChatId().toString();
 
             switch (text) {
-                case "/start", "back" ->
+                case "/start", "Back" ->
                         TelegramBotUtil.sendFormattedText( this, chatId, "*Choose an option*", true, OptionBar.buildKeyboard() );
-                case "new skins" -> CompletableFuture.runAsync( () -> new NewSkins( this ).sendNewSkins( chatId ) );
-                case "patch dates" -> CompletableFuture.runAsync( () -> new PatchDate( this ).patches( chatId ) );
-                case "champion info" ->
+                case "New Skins" -> CompletableFuture.runAsync( () -> new NewSkins( this ).sendNewSkins( chatId ) );
+                case "Patch Dates" -> CompletableFuture.runAsync( () -> new PatchDate( this ).patches( chatId ) );
+                case "Champion info" ->
                         CompletableFuture.runAsync( () -> new ChampionInfo( this ).selectChampion( chatId ) );
-                case "news" -> CompletableFuture.runAsync( () -> new News( this ).checkNews( chatId ) );
+                case "News" -> CompletableFuture.runAsync( () -> new News( this ).checkNews( chatId ) );
                 case "exit" -> System.exit( 0 );
                 default -> CompletableFuture.runAsync( () -> new ChampionInfo( this ).handleUserInput( chatId, text ) );
             }

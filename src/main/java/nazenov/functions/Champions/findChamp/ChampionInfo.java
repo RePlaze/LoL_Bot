@@ -7,8 +7,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +19,10 @@ public class ChampionInfo {
         this.executorService = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
     }
 
-    public void champOptions(String chatId, String championName) {
+    public void champOptions(String chatId, String champion) {
+        System.out.println( champion );
+        SearchName sn = new SearchName();
+        String championName = sn.findBestMatch( champion );
         CompletableFuture.runAsync( () -> {
             try {
                 sendEmoji( chatId, championName );
@@ -30,7 +31,6 @@ public class ChampionInfo {
                 sendPhoto.setCaption( "``` select option for``` *" + championName + "*" );
                 sendPhoto.setParseMode( "Markdown" );
                 sendPhoto.setReplyMarkup( ChampOption.championOptionsKeyboard( chatId, championName ) );
-
                 botInstance.execute( sendPhoto );
             } catch (TelegramApiException e) {
                 handleTelegramApiException( e, chatId );
@@ -43,11 +43,11 @@ public class ChampionInfo {
     }
 
     private String getChampionImage(String championName) {
-        return String.format( "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/%s_0.jpg", championName.replaceAll( "'", "" ) );
+        return String.format( "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/%s_0.jpg",
+                championName.replaceAll( "'", "" ) );
     }
 
-    public void handleUserInput(String chatId, String messageText) {
-        String championName = messageText.substring( 0, 1 ).toUpperCase() + messageText.substring( 1 );
+    public void handleUserInput(String chatId, String championName) {
         SearchName searchName = new SearchName();
         String suggestion = searchName.findBestMatch( championName );
 
@@ -65,165 +65,486 @@ public class ChampionInfo {
     }
 
     void sendEmoji(String chatId, String championName) {
-        Map<String, String> championToEmojiMap = new HashMap<>();
-
-        championToEmojiMap.put( "Aatrox", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Ahri", "\uD83D\uDC31" );
-        championToEmojiMap.put( "Akali", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Alistar", "\uD83D\uDC04" );
-        championToEmojiMap.put( "Amumu", "\uD83D\uDE22" );
-        championToEmojiMap.put( "Anivia", "\uD83D\uDC26" );
-        championToEmojiMap.put( "Annie", "\uD83D\uDD25" );
-        championToEmojiMap.put( "Aphelios", "\uD83C\uDF19" );
-        championToEmojiMap.put( "Ashe", "\uD83C\uDFF9" );
-        championToEmojiMap.put( "AurelionSol", "\uD83C\uDF1F" );
-        championToEmojiMap.put( "Azir", "\uD83C\uDFF0" );
-        championToEmojiMap.put( "Bard", "\uD83C\uDFB5" );
-        championToEmojiMap.put( "Blitzcrank", "\uD83E\uDD16" );
-        championToEmojiMap.put( "Brand", "\uD83D\uDD25" );
-        championToEmojiMap.put( "Braum", "\uD83D\uDEE1" );
-        championToEmojiMap.put( "Caitlyn", "\uD83D\uDD2B" );
-        championToEmojiMap.put( "Camille", "\uD83D\uDEE0" );
-        championToEmojiMap.put( "Cassiopeia", "\uD83D\uDC0D" );
-        championToEmojiMap.put( "ChoGath", "\uD83E\uDD96" );
-        championToEmojiMap.put( "Corki", "\u2708️" );
-        championToEmojiMap.put( "Darius", "\u2694️" );
-        championToEmojiMap.put( "Diana", "\uD83C\uDF19" );
-        championToEmojiMap.put( "Dr.Mundo", "\uD83D\uDC89" );
-        championToEmojiMap.put( "Draven", "\uD83E\uDD91" );
-        championToEmojiMap.put( "Ekko", "\u231B" );
-        championToEmojiMap.put( "Elise", "\uD83D\uDD77" );
-        championToEmojiMap.put( "Evelynn", "\uD83D\uDC79" );
-        championToEmojiMap.put( "Ezreal", "\uD83C\uDF1F" );
-        championToEmojiMap.put( "Fiddlesticks", "\uD83E\uDD16" );
-        championToEmojiMap.put( "Fiora", "\uD83E\uDD8A" );
-        championToEmojiMap.put( "Fizz", "\uD83D\uDC20" );
-        championToEmojiMap.put( "Galio", "\uD83D\uDDFF" );
-        championToEmojiMap.put( "Gangplank", "\u2620️" );
-        championToEmojiMap.put( "Garen", "\u2694️" );
-        championToEmojiMap.put( "Gnar", "\uD83D\uDC3B" );
-        championToEmojiMap.put( "Gragas", "\uD83C\uDF7A" );
-        championToEmojiMap.put( "Graves", "\uD83D\uDD2B" );
-        championToEmojiMap.put( "Gwen", "\uD83E\uDD80" );
-        championToEmojiMap.put( "Hecarim", "\uD83D\uDC0E" );
-        championToEmojiMap.put( "Heimerdinger", "\uD83D\uDD27" );
-        championToEmojiMap.put( "Illaoi", "\uD83E\uDD91" );
-        championToEmojiMap.put( "Irelia", "\uD83E\uDD8A" );
-        championToEmojiMap.put( "Ivern", "\uD83C\uDF33" );
-        championToEmojiMap.put( "Janna", "\uD83C\uDF2A" );
-        championToEmojiMap.put( "JarvanIV", "\uD83C\uDFD0" );
-        championToEmojiMap.put( "Jax", "\u2694️" );
-        championToEmojiMap.put( "Jayce", "\uD83D\uDD27" );
-        championToEmojiMap.put( "Jhin", "\uD83D\uDD2B" );
-        championToEmojiMap.put( "Jinx", "\uD83E\uDD28" );
-        championToEmojiMap.put( "Kalista", "\uD83D\uDD2A" );
-        championToEmojiMap.put( "Karma", "\u262F️" );
-        championToEmojiMap.put( "Karthus", "\uD83D\uDC80" );
-        championToEmojiMap.put( "Kassadin", "\uD83C\uDF0C" );
-        championToEmojiMap.put( "Katarina", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Kayle", "\uD83D\uDC7C" );
-        championToEmojiMap.put( "Kayn", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Kennen", "\u26A1" );
-        championToEmojiMap.put( "KhaZix", "\uD83E\uDD97" );
-        championToEmojiMap.put( "Kindred", "\uD83D\uDC3A\uD83D\uDC0F" );
-        championToEmojiMap.put( "Kled", "\uD83D\uDC0E" );
-        championToEmojiMap.put( "KogMaw", "\uD83D\uDC79" );
-        championToEmojiMap.put( "LeBlanc", "\uD83C\uDFA3" );
-        championToEmojiMap.put( "LeeSin", "\uD83E\uDD74" );
-        championToEmojiMap.put( "Leona", "\u2600" );
-        championToEmojiMap.put( "Lillia", "\uD83E\uDD8C" );
-        championToEmojiMap.put( "Lissandra", "\u2744️" );
-        championToEmojiMap.put( "Lucian", "\uD83D\uDD2B" );
-        championToEmojiMap.put( "Lulu", "\uD83C\uDF3F" );
-        championToEmojiMap.put( "Lux", "\uD83C\uDF1F" );
-        championToEmojiMap.put( "Malphite", "\uD83D\uDDFF" );
-        championToEmojiMap.put( "Malzahar", "\uD83D\uDC32" );
-        championToEmojiMap.put( "Maokai", "\uD83C\uDF32" );
-        championToEmojiMap.put( "MasterYi", "\u2694️" );
-        championToEmojiMap.put( "MissFortune", "\uD83D\uDCB0" );
-        championToEmojiMap.put( "Mordekaiser", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Morgana", "\uD83D\uDD2E" );
-        championToEmojiMap.put( "Nami", "\uD83C\uDF0A" );
-        championToEmojiMap.put( "Nasus", "\uD83D\uDC3A" );
-        championToEmojiMap.put( "Nautilus", "\u2693" );
-        championToEmojiMap.put( "Neeko", "\uD83C\uDF3A" );
-        championToEmojiMap.put( "Nidalee", "\uD83D\uDC3E" );
-        championToEmojiMap.put( "Nocturne", "\uD83C\uDF19" );
-        championToEmojiMap.put( "Nunu&Willump", "\uD83E\uDDCA" );
-        championToEmojiMap.put( "Olaf", "\u2694️" );
-        championToEmojiMap.put( "Orianna", "\u2699️" );
-        championToEmojiMap.put( "Ornn", "\uD83D\uDD25" );
-        championToEmojiMap.put( "Pantheon", "\uD83D\uDE91" );
-        championToEmojiMap.put( "Poppy", "\uD83D\uDD28" );
-        championToEmojiMap.put( "Pyke", "\uD83D\uDDEF" );
-        championToEmojiMap.put( "Qiyana", "\uD83C\uDF0A" );
-        championToEmojiMap.put( "Quinn", "\uD83E\uDD85" );
-        championToEmojiMap.put( "Rakan", "\uD83E\uDD8A" );
-        championToEmojiMap.put( "Rammus", "\uD83D\uDC22" );
-        championToEmojiMap.put( "RekSai", "\uD83E\uDD83" );
-        championToEmojiMap.put( "Rell", "\uD83D\uDC0E" );
-        championToEmojiMap.put( "Renekton", "\uD83D\uDC0E" );
-        championToEmojiMap.put( "Rengar", "\uD83E\uDD81" );
-        championToEmojiMap.put( "Riven", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Rumble", "\uD83D\uDD28" );
-        championToEmojiMap.put( "Ryze", "\uD83D\uDCDC" );
-        championToEmojiMap.put( "Samira", "\uD83D\uDD2B" );
-        championToEmojiMap.put( "Sejuani", "\uD83D\uDC16" );
-        championToEmojiMap.put( "Senna", "\uD83C\uDFB9" );
-        championToEmojiMap.put( "Seraphine", "\uD83C\uDFB5" );
-        championToEmojiMap.put( "Sett", "\uD83E\uDD4A" );
-        championToEmojiMap.put( "Shaco", "\uD83E\uDD21" );
-        championToEmojiMap.put( "Shen", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Shyvana", "\uD83D\uDC09" );
-        championToEmojiMap.put( "Singed", "\uD83E\uDD79" );
-        championToEmojiMap.put( "Sion", "\uD83D\uDC80" );
-        championToEmojiMap.put( "Sivir", "\uD83C\uDFF9" );
-        championToEmojiMap.put( "Skarner", "\uD83E\uDD83" );
-        championToEmojiMap.put( "Sona", "\uD83C\uDFB5" );
-        championToEmojiMap.put( "Soraka", "\uD83C\uDF1F" );
-        championToEmojiMap.put( "Swain", "\uD83E\uDDA2" );
-        championToEmojiMap.put( "Sylas", "\uD83E\uDD11" );
-        championToEmojiMap.put( "Syndra", "\uD83C\uDF0C" );
-        championToEmojiMap.put( "TahmKench", "\uD83D\uDC41" );
-        championToEmojiMap.put( "Taliyah", "\uD83C\uDF2A" );
-        championToEmojiMap.put( "Talon", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Taric", "\uD83D\uDC8E" );
-        championToEmojiMap.put( "Teemo", "\uD83C\uDF44" );
-        championToEmojiMap.put( "Thresh", "\uD83D\uDE9D" );
-        championToEmojiMap.put( "Tristana", "\uD83D\uDE80" );
-        championToEmojiMap.put( "Trundle", "\u2744️" );
-        championToEmojiMap.put( "Tryndamere", "\u2694️" );
-        championToEmojiMap.put( "TwistedFate", "\uD83C\uDFB4" );
-        championToEmojiMap.put( "Twitch", "\uD83D\uDC00" );
-        championToEmojiMap.put( "Udyr", "\uD83D\uDC3B" );
-        championToEmojiMap.put( "Urgot", "\uD83E\uDD80" );
-        championToEmojiMap.put( "Varus", "\uD83C\uDFF9" );
-        championToEmojiMap.put( "Vayne", "\uD83E\uDD87" );
-        championToEmojiMap.put( "Veigar", "\uD83E\uDD9B" );
-        championToEmojiMap.put( "VelKoz", "\uD83D\uDC41" );
-        championToEmojiMap.put( "Vi", "\uD83E\uDD1C\uD83E\uDD1C" );
-        championToEmojiMap.put( "Viego", "\uD83E\uDD87" );
-        championToEmojiMap.put( "Viktor", "\uD83D\uDD27" );
-        championToEmojiMap.put( "Vladimir", "\uD83E\uDD87" );
-        championToEmojiMap.put( "Volibear", "\uD83D\uDC3B" );
-        championToEmojiMap.put( "Warwick", "\uD83E\uDD8A" );
-        championToEmojiMap.put( "Wukong", "\uD83D\uDC12" );
-        championToEmojiMap.put( "Xayah", "\uD83D\uDC26" );
-        championToEmojiMap.put( "Xerath", "\u26A1" );
-        championToEmojiMap.put( "XinZhao", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Yasuo", "\uD83C\uDF2A" );
-        championToEmojiMap.put( "Yone", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Yorick", "\uD83D\uDC80" );
-        championToEmojiMap.put( "Yuumi", "\uD83E\uDD3E" );
-        championToEmojiMap.put( "Zac", "\uD83D\uDF7A" );
-        championToEmojiMap.put( "Zed", "\uD83D\uDDE1" );
-        championToEmojiMap.put( "Zeri", "\uD83E\uDD85" );
-        championToEmojiMap.put( "Ziggs", "\uD83D\uDCA3" );
-        championToEmojiMap.put( "Zilean", "\u231B" );
-        championToEmojiMap.put( "Zoe", "\uD83C\uDF1F" );
-        championToEmojiMap.put( "Zyra", "\uD83C\uDF31" );
-        if (championName.equals( "Kaisa" ))
-            TelegramBotUtil.sendFormattedText( botInstance, chatId, "\uD83D\uDC7E", true,
-                    OptionBar.buildKeyboard() );
+        switch (championName) {
+            case "Aatrox":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Ahri":
+                send( chatId, "\uD83D\uDC31" );
+                break;
+            case "Akali":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Alistar":
+                send( chatId, "\uD83D\uDC04" );
+                break;
+            case "Amumu":
+                send( chatId, "\uD83D\uDE22" );
+                break;
+            case "Anivia":
+                send( chatId, "\uD83D\uDC26" );
+                break;
+            case "Annie":
+                send( chatId, "\uD83D\uDD25" );
+                break;
+            case "Aphelios":
+                send( chatId, "\uD83C\uDF19" );
+                break;
+            case "Ashe":
+                send( chatId, "\uD83C\uDFF9" );
+                break;
+            case "AurelionSol":
+                send( chatId, "\uD83C\uDF1F" );
+                break;
+            case "Azir":
+                send( chatId, "\uD83C\uDFF0" );
+                break;
+            case "Bard":
+                send( chatId, "\uD83C\uDFB5" );
+                break;
+            case "Blitzcrank":
+                send( chatId, "\uD83E\uDD16" );
+                break;
+            case "Brand":
+                send( chatId, "\uD83D\uDD25" );
+                break;
+            case "Braum":
+                send( chatId, "\uD83D\uDEE1" );
+                break;
+            case "Caitlyn":
+                send( chatId, "\uD83D\uDD2B" );
+                break;
+            case "Camille":
+                send( chatId, "\uD83D\uDEE0" );
+                break;
+            case "Cassiopeia":
+                send( chatId, "\uD83D\uDC0D" );
+                break;
+            case "ChoGath":
+                send( chatId, "\uD83E\uDD96" );
+                break;
+            case "Corki":
+                send( chatId, "\u2708️" );
+                break;
+            case "Darius":
+                send( chatId, "\u2694️" );
+                break;
+            case "Diana":
+                send( chatId, "\uD83C\uDF19" );
+                break;
+            case "DrMundo":
+                send( chatId, "\uD83D\uDC89" );
+                break;
+            case "Draven":
+                send( chatId, "\uD83E\uDD91" );
+                break;
+            case "Ekko":
+                send( chatId, "\u231B" );
+                break;
+            case "Elise":
+                send( chatId, "\uD83D\uDD77" );
+                break;
+            case "Evelynn":
+                send( chatId, "\uD83D\uDC79" );
+                break;
+            case "Ezreal":
+                send( chatId, "\uD83C\uDF1F" );
+                break;
+            case "Fiddlesticks":
+                send( chatId, "\uD83E\uDD16" );
+                break;
+            case "Fiora":
+                send( chatId, "\uD83E\uDD8A" );
+                break;
+            case "Fizz":
+                send( chatId, "\uD83D\uDC20" );
+                break;
+            case "Galio":
+                send( chatId, "\uD83D\uDDFF" );
+                break;
+            case "Gangplank":
+                send( chatId, "\u2620️" );
+                break;
+            case "Garen":
+                send( chatId, "\u2694️" );
+                break;
+            case "Gnar":
+                send( chatId, "\uD83D\uDC3B" );
+                break;
+            case "Gragas":
+                send( chatId, "\uD83C\uDF7A" );
+                break;
+            case "Graves":
+                send( chatId, "\uD83D\uDD2B" );
+                break;
+            case "Gwen":
+                send( chatId, "\uD83E\uDD80" );
+                break;
+            case "Hecarim":
+                send( chatId, "\uD83D\uDC0E" );
+                break;
+            case "Heimerdinger":
+                send( chatId, "\uD83D\uDD27" );
+                break;
+            case "Illaoi":
+                send( chatId, "\uD83E\uDD91" );
+                break;
+            case "Irelia":
+                send( chatId, "\uD83E\uDD8A" );
+                break;
+            case "Ivern":
+                send( chatId, "\uD83C\uDF33" );
+                break;
+            case "Janna":
+                send( chatId, "\uD83C\uDF2A" );
+                break;
+            case "JarvanIV":
+                send( chatId, "\uD83C\uDFD0" );
+                break;
+            case "Jax":
+                send( chatId, "\u2694️" );
+                break;
+            case "Jayce":
+                send( chatId, "\uD83D\uDD27" );
+                break;
+            case "Jhin":
+                send( chatId, "\uD83D\uDD2B" );
+                break;
+            case "Jinx":
+                send( chatId, "\uD83E\uDD28" );
+                break;
+            case "Kalista":
+                send( chatId, "\uD83D\uDD2A" );
+                break;
+            case "Karma":
+                send( chatId, "\u262F️" );
+                break;
+            case "Karthus":
+                send( chatId, "\uD83D\uDC80" );
+                break;
+            case "Kassadin":
+                send( chatId, "\uD83C\uDF0C" );
+                break;
+            case "Katarina":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Kayle":
+                send( chatId, "\uD83D\uDC7C" );
+                break;
+            case "Kayn":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Kennen":
+                send( chatId, "\u26A1" );
+                break;
+            case "KhaZix":
+                send( chatId, "\uD83E\uDD97" );
+                break;
+            case "Kindred":
+                send( chatId, "\uD83D\uDC3A\uD83D\uDC0F" );
+                break;
+            case "Kled":
+                send( chatId, "\uD83D\uDC0E" );
+                break;
+            case "KogMaw":
+                send( chatId, "\uD83D\uDC79" );
+                break;
+            case "LeBlanc":
+                send( chatId, "\uD83C\uDFA3" );
+                break;
+            case "LeeSin":
+                send( chatId, "\uD83E\uDD74" );
+                break;
+            case "Leona":
+                send( chatId, "\u2600" );
+                break;
+            case "Lillia":
+                send( chatId, "\uD83E\uDD8C" );
+                break;
+            case "Lissandra":
+                send( chatId, "\u2744️" );
+                break;
+            case "Lucian":
+                send( chatId, "\uD83D\uDD2B" );
+                break;
+            case "Lulu":
+                send( chatId, "\uD83C\uDF3F" );
+                break;
+            case "Lux":
+                send( chatId, "\uD83C\uDF1F" );
+                break;
+            case "Malphite":
+                send( chatId, "\uD83D\uDDFF" );
+                break;
+            case "Malzahar":
+                send( chatId, "\uD83D\uDC32" );
+                break;
+            case "Maokai":
+                send( chatId, "\uD83C\uDF32" );
+                break;
+            case "MasterYi":
+                send( chatId, "\u2694️" );
+                break;
+            case "MissFortune":
+                send( chatId, "\uD83D\uDCB0" );
+                break;
+            case "Mordekaiser":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Morgana":
+                send( chatId, "\uD83D\uDD2E" );
+                break;
+            case "Nami":
+                send( chatId, "\uD83C\uDF0A" );
+                break;
+            case "Nasus":
+                send( chatId, "\uD83D\uDC3A" );
+                break;
+            case "Nautilus":
+                send( chatId, "\u2693" );
+                break;
+            case "Neeko":
+                send( chatId, "\uD83C\uDF3A" );
+                break;
+            case "Nidalee":
+                send( chatId, "\uD83D\uDC3E" );
+                break;
+            case "Nocturne":
+                send( chatId, "\uD83C\uDF19" );
+                break;
+            case "Nunu&Willump":
+                send( chatId, "\uD83E\uDDCA" );
+                break;
+            case "Olaf":
+                send( chatId, "\u2694️" );
+                break;
+            case "Orianna":
+                send( chatId, "\u2699️" );
+                break;
+            case "Ornn":
+                send( chatId, "\uD83D\uDD25" );
+                break;
+            case "Pantheon":
+                send( chatId, "\uD83D\uDE91" );
+                break;
+            case "Poppy":
+                send( chatId, "\uD83D\uDD28" );
+                break;
+            case "Pyke":
+                send( chatId, "\uD83D\uDDEF" );
+                break;
+            case "Qiyana":
+                send( chatId, "\uD83C\uDF0A" );
+                break;
+            case "Quinn":
+                send( chatId, "\uD83E\uDD85" );
+                break;
+            case "Rakan":
+                send( chatId, "\uD83E\uDD8A" );
+                break;
+            case "Rammus":
+                send( chatId, "\uD83D\uDC22" );
+                break;
+            case "RekSai":
+                send( chatId, "\uD83E\uDD83" );
+                break;
+            case "Rell":
+                send( chatId, "\uD83D\uDC0E" );
+                break;
+            case "Renekton":
+                send( chatId, "\uD83D\uDC0E" );
+                break;
+            case "Rengar":
+                send( chatId, "\uD83E\uDD81" );
+                break;
+            case "Riven":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Rumble":
+                send( chatId, "\uD83D\uDD28" );
+                break;
+            case "Ryze":
+                send( chatId, "\uD83D\uDCDC" );
+                break;
+            case "Samira":
+                send( chatId, "\uD83D\uDD2B" );
+                break;
+            case "Sejuani":
+                send( chatId, "\uD83D\uDC16" );
+                break;
+            case "Senna":
+                send( chatId, "\uD83C\uDFB9" );
+                break;
+            case "Seraphine":
+                send( chatId, "\uD83E\uDD4A" );
+                break;
+            case "Sett":
+                send( chatId, "\uD83E\uDD4A" );
+                break;
+            case "Shaco":
+                send( chatId, "\uD83E\uDD21" );
+                break;
+            case "Shen":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Shyvana":
+                send( chatId, "\uD83D\uDC09" );
+                break;
+            case "Singed":
+                send( chatId, "\uD83E\uDD79" );
+                break;
+            case "Sion":
+                send( chatId, "\uD83D\uDE9E" );
+                break;
+            case "Sivir":
+                send( chatId, "\uD83E\uDD85" );
+                break;
+            case "Skarner":
+                send( chatId, "\uD83D\uDD28" );
+                break;
+            case "Sona":
+                send( chatId, "\uD83C\uDFB5" );
+                break;
+            case "Soraka":
+                send( chatId, "\uD83E\uDD8C" );
+                break;
+            case "Swain":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Sylas":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Syndra":
+                send( chatId, "\uD83E\uDDDD" );
+                break;
+            case "TahmKench":
+                send( chatId, "\uD83D\uDC1F" );
+                break;
+            case "Taliyah":
+                send( chatId, "\uD83C\uDF0C" );
+                break;
+            case "Talon":
+                send( chatId, "\uD83D\uDD25" );
+                break;
+            case "Taric":
+                send( chatId, "\uD83D\uDC9A" );
+                break;
+            case "Teemo":
+                send( chatId, "\uD83C\uDF3F" );
+                break;
+            case "Thresh":
+                send( chatId, "\u2694️" );
+                break;
+            case "Tristana":
+                send( chatId, "\uD83C\uDFC3" );
+                break;
+            case "Trundle":
+                send( chatId, "\uD83E\uDD91" );
+                break;
+            case "Tryndamere":
+                send( chatId, "\uD83D\uDEE1" );
+                break;
+            case "TwistedFate":
+                send( chatId, "\uD83C\uDFB2" );
+                break;
+            case "Twitch":
+                send( chatId, "\uD83D\uDD2E" );
+                break;
+            case "Udyr":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Ksante":
+                send( chatId, "\uD83D\uDC3B" );
+                break;
+            case "Urgot":
+                send( chatId, "\uD83E\uDD8E" );
+                break;
+            case "Varus":
+                send( chatId, "\uD83D\uDCB0" );
+                break;
+            case "Vayne":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Veigar":
+                send( chatId, "\uD83E\uDDDD" );
+                break;
+            case "VelKoz":
+                send( chatId, "\uD83E\uDD16" );
+                break;
+            case "Vi":
+                send( chatId, "\uD83E\uDD4A" );
+                break;
+            case "Viego":
+                send( chatId, "\uD83D\uDC80" );
+                break;
+            case "Viktor":
+                send( chatId, "\uD83D\uDD25" );
+                break;
+            case "Vladimir":
+                send( chatId, "\uD83E\uDE78" );
+                break;
+            case "Volibear":
+                send( chatId, "\uD83D\uDC3B" );
+                break;
+            case "Warwick":
+                send( chatId, "\uD83D\uDC3A" );
+                break;
+            case "Wukong":
+                send( chatId, "\uD83E\uDD8A" );
+                break;
+            case "Xayah":
+                send( chatId, "\uD83C\uDFB9" );
+                break;
+            case "Xerath":
+                send( chatId, "\uD83C\uDF19" );
+                break;
+            case "XinZhao":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Yasuo":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Yone":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Yorick":
+                send( chatId, "\uD83E\uDDDD" );
+                break;
+            case "Yuumi":
+                send( chatId, "\uD83E\uDD8C" );
+                break;
+            case "Zac":
+                send( chatId, "\uD83D\uDC32" );
+                break;
+            case "Zed":
+                send( chatId, "\uD83D\uDDE1" );
+                break;
+            case "Zeri":
+                send( chatId, "\uD83E\uDD16" );
+                break;
+            case "Ziggs":
+                send( chatId, "\uD83D\uDD27" );
+                break;
+            case "Zilean":
+                send( chatId, "\u23F0" );
+                break;
+            case "Zoe":
+                send( chatId, "\uD83D\uDDDD" );
+                break;
+            case "Zyra":
+                send( chatId, "\uD83C\uDF3F" );
+                break;
+            case "Kaisa":
+                send( chatId, "\uD83D\uDC7E" );
+                break;
+            case "Briar":
+                send( chatId, "\uD83E\uDDDB" );
+                break;
+        }
     }
+
+    public void send(String chatId, String text) {
+        TelegramBotUtil.sendFormattedText( botInstance, chatId, text, true, OptionBar.buildKeyboard() );
+    }
+
 }

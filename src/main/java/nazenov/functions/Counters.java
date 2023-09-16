@@ -30,7 +30,6 @@ public class Counters {
     public void counters(String chatId, String championName) {
         CompletableFuture.runAsync( () -> {
             try {
-                long startTime = System.currentTimeMillis();
                 String url = "https://u.gg/lol/champions/" + championName + "/counter";
 
                 List<String> bestCounters = fetchCounterList( url, "best-win-rate", "Lost against" );
@@ -38,9 +37,6 @@ public class Counters {
 
                 sendCounterMessages( chatId, championName, bestCounters, worstCounters );
 
-                long endTime = System.currentTimeMillis();
-                long executionTime = endTime - startTime;
-                System.out.println( "Method execution time: " + executionTime + " milliseconds" );
             } catch (IOException e) {
                 handleException( chatId );
             }
